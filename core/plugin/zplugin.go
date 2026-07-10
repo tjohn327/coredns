@@ -53,6 +53,7 @@ import (
 	_ "github.com/coredns/coredns/plugin/rewrite"
 	_ "github.com/coredns/coredns/plugin/root"
 	_ "github.com/coredns/coredns/plugin/route53"
+	_ "github.com/coredns/coredns/plugin/scitra"
 	_ "github.com/coredns/coredns/plugin/secondary"
 	_ "github.com/coredns/coredns/plugin/sign"
 	_ "github.com/coredns/coredns/plugin/template"

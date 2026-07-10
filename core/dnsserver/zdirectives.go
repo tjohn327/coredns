@@ -56,6 +56,7 @@ var Directives = []string{
 	"clouddns",
 	"k8s_external",
 	"kubernetes",
+	"scitra",
 	"file",
 	"auto",
 	"secondary",
