@@ -214,6 +214,6 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace github.com/miekg/dns => /home/tony/tjohn327/dns // TODO(pin): pseudo-version after push
+replace github.com/miekg/dns => github.com/tjohn327/dns v0.0.0-20260710234312-f27c366ebc23
 
 replace github.com/scionproto/scion => github.com/lschulz/scion v0.11.1-0.20260709203036-e356d834bba6
