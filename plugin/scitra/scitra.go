@@ -57,8 +57,27 @@ func (s Scitra) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	if !hasScion {
 		// pass to the next plugin
 		return plugin.NextOrFailure(name, s.Next, ctx, w, r)
+	}
 
-	} else if hasScion && qtype == dns.TypeA {
+	// Native records take precedence: if the next plugin already has an
+	// answer of the requested type (dual-homed host), serve it unchanged.
+	// Synthesis and A-suppression only apply to SCION-only names.
+	nw := nonwriter.New(w)
+	rcode, err := plugin.NextOrFailure(name, s.Next, ctx, nw, r)
+	if err != nil {
+		return rcode, err
+	}
+	if rcode == dns.RcodeSuccess && nw.Msg != nil {
+		for _, ans := range nw.Msg.Answer {
+			if ans.Header().Rrtype == qtype {
+				log.Debugf("native %v records exist for %v, passing through", dns.TypeToString[qtype], name)
+				err := w.WriteMsg(nw.Msg)
+				return 0, err
+			}
+		}
+	}
+
+	if qtype == dns.TypeA {
 		// suppress response, we only answer AAAA requests for SCION hosts
 		log.Debugf("suppressed A-record request for %v", name)
 		return s.emptyResponse(w, r)
@@ -75,7 +94,7 @@ func (s Scitra) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	re.Answer = append(re.Answer, rr)
 
 	log.Debugf("translated %v to %v", scionAddr, mappedAddr)
-	err := w.WriteMsg(re)
+	err = w.WriteMsg(re)
 	return 0, err
 }
 
